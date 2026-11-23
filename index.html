@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sabor & Brasa — Sistema de Pedidos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ================= CABEÇALHO ================= -->
+  <header>
+    <div class="container header-content">
+      <div class="brand">
+        <div>
+          <h1>Sabor &amp; Brasa</h1>
+          <p class="subtitle">Gestão de Cardápio &amp; Pedidos</p>
+        </div>
+      </div>
+
+      <nav aria-label="Navegação principal">
+        <a href="#destaques">Destaques</a>
+        <a href="#cardapio">Cardápio</a>
+        <a href="#gerenciar">Gerenciar Pratos</a>
+        <a href="#pedidos">Pedidos (<span id="orders-count">0</span>)</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ================= CONTEÚDO PRINCIPAL ================= -->
+  <main class="container">
+
+    <!-- 1. CARROSSEL DE IMAGENS DOS PRATOS -->
+    <section id="destaques" class="carousel-section" aria-label="Destaques do cardápio">
+      <div class="carousel-wrapper">
+        <button type="button" class="carousel-arrow prev" id="carousel-prev" aria-label="Prato anterior">&#10094;</button>
+        <div class="carousel-track" id="carousel-track">
+          <!-- Slides injetados via JS -->
+        </div>
+        <button type="button" class="carousel-arrow next" id="carousel-next" aria-label="Próximo prato">&#10095;</button>
+      </div>
+      <div class="carousel-indicators" id="carousel-indicators" role="tablist" aria-label="Selecionar slide">
+        <!-- Indicadores injetados via JS -->
+      </div>
+    </section>
+
+    <!-- LAYOUT PRINCIPAL: CARDÁPIO (ESQUERDA) + CARRINHO (DIREITA) -->
+    <div class="main-grid">
+
+      <!-- COLUNA ESQUERDA: CARDÁPIO + CRUD DE PRODUTOS -->
+      <div class="left-column">
+
+        <!-- 2. LISTAGEM DO CARDÁPIO (READ) -->
+        <section id="cardapio" class="card-section" aria-labelledby="heading-cardapio">
+          <div class="section-top">
+            <div>
+              <h2 id="heading-cardapio">Cardápio do Dia</h2>
+              <p class="muted">Escolha seus pratos ou marmitas e adicione ao pedido</p>
+            </div>
+            <div class="filter-group" role="group" aria-label="Filtrar por categoria">
+              <button type="button" class="chip active" data-cat="Todos">Todos</button>
+              <button type="button" class="chip" data-cat="Marmita">Marmitas</button>
+              <button type="button" class="chip" data-cat="Prato Executivo">Executivos</button>
+              <button type="button" class="chip" data-cat="Bebida">Bebidas</button>
+              <button type="button" class="chip" data-cat="Sobremesa">Sobremesas</button>
+            </div>
+          </div>
+
+          <div class="menu-grid" id="menu-grid">
+            <!-- Cards de produtos renderizados via JS -->
+          </div>
+        </section>
+
+        <!-- 3. FORMULÁRIO CRUD DE PRODUTOS (CREATE / UPDATE) -->
+        <section id="gerenciar" class="card-section form-section" aria-labelledby="heading-crud">
+          <div class="section-top">
+            <div>
+              <h2 id="heading-crud">Gerenciar Cardápio (Cadastrar / Editar)</h2>
+              <p class="muted">Adicione novos itens ou clique em "Editar" em qualquer prato acima</p>
+            </div>
+          </div>
+
+          <form id="product-form" class="crud-form" novalidate>
+            <input type="hidden" id="prod-id">
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="prod-nome">Nome do Prato *</label>
+                <input type="text" id="prod-nome" placeholder="Ex: Marmita Executiva de Frango" required>
+              </div>
+
+              <div class="form-group">
+                <label for="prod-categoria">Categoria *</label>
+                <select id="prod-categoria" required>
+                  <option value="Marmita">Marmita</option>
+                  <option value="Prato Executivo">Prato Executivo</option>
+                  <option value="Bebida">Bebida</option>
+                  <option value="Sobremesa">Sobremesa</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="prod-preco">Preço (R$) *</label>
+                <input type="number" id="prod-preco" step="0.01" min="0.50" placeholder="Ex: 24.90" required>
+              </div>
+
+              <div class="form-group">
+                <label for="prod-imagem">URL da Imagem *</label>
+                <input type="url" id="prod-imagem" placeholder="https://..." required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="prod-descricao">Descrição *</label>
+              <textarea id="prod-descricao" rows="2" placeholder="Ingredientes e acompanhamentos..." required></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="btn-save-product">Cadastrar Produto</button>
+              <button type="button" class="btn btn-ghost hidden" id="btn-cancel-edit">Cancelar Edição</button>
+            </div>
+          </form>
+        </section>
+
+        <!-- 4. HISTÓRICO DE PEDIDOS FINALIZADOS -->
+        <section id="pedidos" class="card-section" aria-labelledby="heading-pedidos">
+          <div class="section-top">
+            <div>
+              <h2 id="heading-pedidos">Pedidos Finalizados</h2>
+              <p class="muted">Acompanhe os pedidos registrados nesta sessão</p>
+            </div>
+          </div>
+          <div id="orders-list" class="orders-list">
+            <p class="muted">Nenhum pedido finalizado ainda.</p>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- COLUNA DIREITA: CARRINHO DE COMPRAS INTERATIVO -->
+      <aside class="cart-sidebar" aria-label="Carrinho de pedidos">
+        <div class="cart-box">
+          <div class="cart-header">
+            <h2>🛒 Seu Pedido (<span id="cart-badge">0</span>)</h2>
+            <button type="button" class="btn-danger-link" id="btn-clear-cart">Limpar</button>
+          </div>
+
+          <div id="cart-items-container" class="cart-items">
+            <p class="empty-msg">Seu carrinho está vazio. Adicione itens do cardápio.</p>
+          </div>
+
+          <!-- Tipo de Entrega -->
+          <div class="delivery-box">
+            <label for="delivery-type"><strong>Modalidade do Pedido:</strong></label>
+            <select id="delivery-type">
+              <option value="local">Consumo no Local / Retirada (Sem taxa)</option>
+              <option value="delivery">Entrega via Delivery</option>
+            </select>
+            <small id="delivery-hint" class="delivery-hint">
+              Taxa de R$ 2,50 aplicada apenas para Marmitas via Delivery.
+            </small>
+          </div>
+
+          <!-- Resumo Financeiro -->
+          <div class="cart-totals">
+            <div class="total-row">
+              <span>Subtotal</span>
+              <span id="cart-subtotal">R$ 0,00</span>
+            </div>
+            <div class="total-row">
+              <span>Taxa de Entrega</span>
+              <span id="cart-fee">R$ 0,00</span>
+            </div>
+            <div class="total-row grand-total">
+              <span>Total Final</span>
+              <span id="cart-total">R$ 0,00</span>
+            </div>
+          </div>
+
+          <!-- Dados do Cliente para Finalização -->
+          <form id="checkout-form" class="checkout-form" novalidate>
+            <div class="form-group">
+              <label for="client-name">Nome do Cliente *</label>
+              <input type="text" id="client-name" autocomplete="name" placeholder="Digite seu nome" required>
+            </div>
+            <button type="submit" class="btn btn-success btn-block" id="btn-finish-order">
+              Finalizar Pedido
+            </button>
+          </form>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- FEEDBACK VISUAL (IHC) -->
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 Restaurante Sabor &amp; Brasa — Desenvolvimento Web 2 (POO &amp; CRUD)</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
